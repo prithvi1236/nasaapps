@@ -28,7 +28,7 @@ def country():
         if country not in df1['country'].values:
             return jsonify({"error": "Country not found in the dataset"}), 404
     except:
-        return jsonify({"error": "Invalid request"}), 400  # Return maximum 6 matches as JSON
+        return jsonify({"error": "Invalid request"}), 400  
 
 
 @app.route('/co2_plot', methods=['POST'])
