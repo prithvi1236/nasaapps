@@ -1,34 +1,40 @@
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios'; // Import axios for HTTP requests
-import { motion } from 'framer-motion';
+import { motion } from 'framer-motion'; // Framer Motion for animations
 
 const SearchMenu = () => {
-  const [place, setPlace] = useState('');
-  const [countries, setCountries] = useState([]); // State to hold list of countries
-  const [filteredCountries, setFilteredCountries] = useState([]); // State to hold filtered countries
+  const [place, setPlace] = useState(''); // Input value
+  const [countries, setCountries] = useState([]); // All countries from backend
+  const [filteredCountries, setFilteredCountries] = useState([]); // Filtered country list
   const ref = useRef(null);
 
-  // Fetch countries from the Flask backend on component mount
+  // Fetch countries from Flask backend
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:5000/country');
+        const response = await axios.get('http://127.0.0.1:5000/countries');
         setCountries(response.data);
       } catch (error) {
-        console.error('Error fetching countries:', error);
+        console.error('Error fetching countries:', error.response ? error.response.data : error.message);
       }
     };
     fetchCountries();
   }, []);
 
-  // Filter countries based on user input and limit to 6 results
+  // Filter countries based on input and limit to 6 results
   useEffect(() => {
-    const filtered = countries.filter((country) =>
-      country.toLowerCase().includes(place.toLowerCase())
-    ).slice(0, 6); // Limit results to 6
+    if (place.trim() === '') {
+      setFilteredCountries([]); // Reset if input is empty
+      return;
+    }
+
+    const filtered = countries
+      .filter((country) =>
+        country.toLowerCase().includes(place.toLowerCase())
+      )
+      .slice(0, 6); // Limit to 6 results
     setFilteredCountries(filtered);
   }, [place, countries]);
-
   return (
     <>
       <div className='flex flex-col items-center justify-center min-h-screen'>

@@ -17,18 +17,19 @@ df1 = dfs['CO Population-Weighted (ppm)']
 df2 = dfs['VOCs Population-Weighted (ppm)']
 df3 = dfs['SO2 Population-Weighted (ppm)']
 
+print(df1.head())
 @app.route('/')
 def home():
     return render_template('index.html')
 
-@app.route('/country', methods=['GET'])
-def country():
+@app.route('/countries', methods=['GET'])
+def countries():
     try:
-        country = request.args.get('country')
-        if country not in df1['country'].values:
-            return jsonify({"error": "Country not found in the dataset"}), 404
+        countries = df1['country'].tolist()  # Return as list
+        return jsonify(countries)  # Return directly as list
     except:
         return jsonify({"error": "Invalid request"}), 400  
+
 
 
 @app.route('/co2_plot', methods=['POST'])
@@ -241,5 +242,5 @@ def so2_img():
 
     return send_file(img, mimetype='image/png')
 
-if __name__ == '_main_':
+if __name__ == '__main__':
     app.run(debug=True,threaded=False)
