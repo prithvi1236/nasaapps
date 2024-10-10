@@ -4,37 +4,30 @@ import { motion } from 'framer-motion'; // Framer Motion for animations
 
 const SearchMenu = () => {
   const [place, setPlace] = useState(''); // Input value
-  const [countries, setCountries] = useState([]); // All countries from backend
   const [filteredCountries, setFilteredCountries] = useState([]); // Filtered country list
   const ref = useRef(null);
 
-  // Fetch countries from Flask backend
+  // Fetch countries from Flask backend based on user input
   useEffect(() => {
     const fetchCountries = async () => {
+      if (place.trim() === '') {
+        setFilteredCountries([]); // Reset if input is empty
+        return;
+      }
+
       try {
-        const response = await axios.get('http://127.0.0.1:5000/countries');
-        setCountries(response.data);
+        const response = await axios.get('http://127.0.0.1:5000/countries', {
+          params: { query: place }
+        });
+        setFilteredCountries(response.data.data);
       } catch (error) {
         console.error('Error fetching countries:', error.response ? error.response.data : error.message);
       }
     };
+
     fetchCountries();
-  }, []);
+  }, [place]);
 
-  // Filter countries based on input and limit to 6 results
-  useEffect(() => {
-    if (place.trim() === '') {
-      setFilteredCountries([]); // Reset if input is empty
-      return;
-    }
-
-    const filtered = countries
-      .filter((country) =>
-        country.toLowerCase().includes(place.toLowerCase())
-      )
-      .slice(0, 6); // Limit to 6 results
-    setFilteredCountries(filtered);
-  }, [place, countries]);
   return (
     <>
       <div className='flex flex-col items-center justify-center min-h-screen'>
@@ -53,43 +46,29 @@ const SearchMenu = () => {
           }}
           style={{ resize: 'none', overflow: 'hidden' }}
         />
-        
+
         {place !== '' && filteredCountries.length > 0 && (
-          <>
-            <br />
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 p-4">
-              {filteredCountries.map((country) => (
-                <motion.div
-                  key={country}
-                  initial={{ y: 10, opacity: 0.5 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  whileHover={{ cursor: 'pointer', scale: 1.1, y: -10 }}
-                  transition={{ duration: 1, ease: 'linear' }}
-                  className="max-w-sm rounded overflow-hidden shadow-lg bg-white m-4"
-                >
-                  <div className="px-6 py-4">
-                    <div className="font-bold text-xl mb-2">{country}</div>
-                    <p className="text-gray-700 text-base">
-                      This is an example of a simple card component in React with Tailwind
-                      CSS. You can add an image and some text here to describe the content
-                      of the card.
-                    </p>
-                  </div>
-                  <div className="px-6 pt-4 pb-2">
-                    <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                      #hashtag1
-                    </span>
-                    <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                      #hashtag2
-                    </span>
-                    <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                      #hashtag3
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 p-4">
+            {filteredCountries.map((country) => (
+              <motion.div
+                key={country}
+                initial={{ y: 10, opacity: 0.5 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                whileHover={{ cursor: 'pointer', scale: 1.1, y: -10 }}
+                transition={{ duration: 1, ease: 'linear' }}
+                className="max-w-sm rounded overflow-hidden shadow-lg bg-white m-4"
+              >
+                <div className="px-6 py-4">
+                  <div className="font-bold text-xl mb-2">{country}</div>
+                  <p className="text-gray-700 text-base">
+                    This is an example of a simple card component in React with Tailwind
+                    CSS. You can add an image and some text here to describe the content
+                    of the card.
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         )}
 
         {place !== '' && filteredCountries.length === 0 && (

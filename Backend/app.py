@@ -16,8 +16,6 @@ dfs = pd.read_excel(file_path, sheet_name=None)
 df1 = dfs['CO Population-Weighted (ppm)']
 df2 = dfs['VOCs Population-Weighted (ppm)']
 df3 = dfs['SO2 Population-Weighted (ppm)']
-
-print(df1.head())
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -25,11 +23,19 @@ def home():
 @app.route('/countries', methods=['GET'])
 def countries():
     try:
-        countries = df1['country'].tolist()  # Return as list
-        return jsonify(countries)  # Return directly as list
-    except:
-        return jsonify({"error": "Invalid request"}), 400  
+        query = request.args.get('query', '').lower()  # Get the user input (query)
+        if not query:
+            return jsonify({"data": []})  # Return an empty list if no query is provided
 
+        # Filter country names based on the user query (case-insensitive)
+        countries = df1['country'].dropna()  # Keep original case
+        filtered_countries = countries[countries.str.lower().str.startswith(query)].tolist()
+
+        # Return the first 5 results
+        return jsonify({"data": filtered_countries[:6]})
+    except Exception as e:
+        print(e)
+        return jsonify({"error": "Invalid request"}), 400
 
 
 @app.route('/co2_plot', methods=['POST'])
