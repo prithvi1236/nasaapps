@@ -17,9 +17,9 @@ const SearchMenu = () => {
 
       try {
         const response = await axios.get('http://127.0.0.1:5000/countries', {
-          params: { query: place }
+          params: { query: place } // Pass the search term
         });
-        setFilteredCountries(response.data.data);
+        setFilteredCountries(response.data.data); // Use correct response key
       } catch (error) {
         console.error('Error fetching countries:', error.response ? error.response.data : error.message);
       }

@@ -2,10 +2,9 @@ import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend
 import matplotlib.pyplot as plt
 
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, render_template
 import pandas as pd
 from flask_cors import CORS
-from io import BytesIO
 
 app = Flask(__name__)
 CORS(app)
@@ -63,7 +62,7 @@ def home():
 @app.route('/countries', methods=['GET'])
 def countries():
     try:
-        query = request.form.get('query', '').lower()  # Get the user input (query)
+        query = request.args.get('query', '').lower()  # Get the user input (query) from URL parameters
         if not query:
             return jsonify({"data": []})  # Return an empty list if no query is provided
 
@@ -71,15 +70,14 @@ def countries():
         countries = df1['country'].dropna()  # Keep original case
         filtered_countries = countries[countries.str.lower().str.startswith(query)].tolist()
 
-        # Return the first 5 results
-        return jsonify({"data": filtered_countries[:5]})
+        return jsonify({"data": filtered_countries[:6]})  # Return as 'data'
     except Exception as e:
         print(e)
         return jsonify({"error": "Invalid request"}), 400
 
 @app.route('/gases_data', methods=['GET'])
 def gases_data():
-    country = request.form.get('country')
+    country = request.args.get('country')
     gas_data = get_gas_data(country)
     if gas_data:
         return jsonify(gas_data)
@@ -88,7 +86,7 @@ def gases_data():
 
 @app.route('/average_gases', methods=['GET'])
 def average_gases():
-    country = request.form.get('country')
+    country = request.args.get('country')
     if not country:
         return jsonify({"error": "Country not provided"}), 400
 
@@ -100,8 +98,8 @@ def average_gases():
 
 @app.route('/compare_2countries', methods=['GET'])
 def compare_2countries():
-    country1 = request.form.get('country1')
-    country2 = request.form.get('country2')
+    country1 = request.args.get('country1')
+    country2 = request.args.get('country2')
 
     data_country1 = get_gas_data(country1)
     data_country2 = get_gas_data(country2)
@@ -117,7 +115,7 @@ def compare_2countries():
 
 @app.route('/country_vs_world', methods=['GET'])
 def country_vs_world():
-    country = request.form.get('country')
+    country = request.args.get('country')
     if not country:
         return jsonify({"error": "Country not provided"}), 400
 
